@@ -1,28 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>VK OAuth Redirect</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    code { background: #f5f5f5; padding: 2px 4px; border-radius: 4px; }
+  </style>
 </head>
 <body>
   <h2>VK OAuth Redirect Page</h2>
-  <p id="result">Ожидание токена...</p>
+  <p id="result">Ожидание ответа…</p>
 
   <script>
-    // Отримуємо hash з адреси (redirect URL)
-    const hash = window.location.hash.substr(1);
-    const params = new URLSearchParams(hash);
-    const token = params.get("access_token");
-    const error = params.get("error");
+    // читаем и #hash, и ?query — чтобы поймать и access_token, и code/error
+    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+    const query = window.location.search.startsWith('?') ? window.location.search.slice(1) : '';
+
+    const hashParams  = new URLSearchParams(hash);
+    const queryParams = new URLSearchParams(query);
+
+    const token = hashParams.get('access_token') || queryParams.get('access_token');
+    const code  = queryParams.get('code') || hashParams.get('code');
+    const error = queryParams.get('error') || hashParams.get('error');
+
+    const $r = document.getElementById('result');
 
     if (token) {
-      document.getElementById("result").innerText = "Ваш токен: " + token;
-      console.log("Access Token:", token);
+      $r.innerHTML = 'Ваш токен: <code>' + token + '</code>';
+      console.log('Access Token:', token);
+    } else if (code) {
+      $r.innerHTML = 'Получен <b>authorization code</b>: <code>' + code + '</code>. ' +
+                     'Это не access_token. Его нужно обменять на сервере через OAuth.';
+      console.log('Authorization code:', code);
     } else if (error) {
-      document.getElementById("result").innerText = "Помилка: " + error;
-      console.error("OAuth Error:", error);
+      const desc = queryParams.get('error_description') || hashParams.get('error_description') || '';
+      $r.textContent = 'Ошибка: ' + error + (desc ? (' — ' + desc) : '');
+      console.error('OAuth Error:', error, desc);
     } else {
-      document.getElementById("result").innerText = "Токен не знайдено";
+      $r.textContent = 'Ничего не найдено в ответе (нет token/code).';
     }
   </script>
 </body>
