@@ -2,54 +2,110 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>VK ID Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    #log { white-space: pre-wrap; font-size: 13px; color: #555; }
+    .box { max-width: 560px; margin: 0 auto; }
+  </style>
 </head>
 <body>
+<div class="box">
   <h2>Войти через VK ID</h2>
   <div id="vkid-container"></div>
-  <p id="status"></p>
+  <p id="status">Инициализация…</p>
+  <details>
+    <summary>Отладка</summary>
+    <div id="log"></div>
+  </details>
+</div>
 
-  <!-- 1) ПІДКЛЮЧАЄМО SDK (точна версія та коректний шлях) -->
-  <!-- Варіант 1 (unpkg): -->
-  <script src="https://unpkg.com/@vkid/sdk@3.0.0/dist/umd/index.js"></script>
-  <!-- Резерв (jsDelivr), якщо unpkg блокується розширеннями: -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/@vkid/sdk@3.0.0/dist/umd/index.js"></script> -->
+<!-- SDK (основной CDN) -->
+<script src="https://unpkg.com/@vkid/sdk@3.0.0/dist/umd/index.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Резервный CDN (на случай, если первый заблокирован) -->
+<script>
+  // если через 1500 мс SDK не появился — пробуем резервный
+  setTimeout(function () {
+    if (!window.VKIDSDK) {
+      var s = document.createElement('script');
+      s.src = "https://cdn.jsdelivr.net/npm/@vkid/sdk@3.0.0/dist/umd/index.js";
+      s.crossOrigin = "anonymous";
+      s.referrerPolicy = "no-referrer";
+      document.head.appendChild(s);
+    }
+  }, 1500);
+</script>
 
-  <script>
-    // Чекаємо, поки SDK з’явиться в window
-    function whenReady(cb, tries = 40) {
-      if (window.VKIDSDK && window.VKIDSDK.VKID) return cb();
-      if (tries <= 0) {
-        alert('VKID SDK не загрузился');
-        document.getElementById('status').textContent = 'Не удалось загрузить VKID SDK.';
-        return;
-      }
-      setTimeout(() => whenReady(cb, tries - 1), 150);
+<script>
+(function () {
+  const APP_ID = 54164270; // твой VK ID app id
+  const REDIRECT_URL = 'https://920volkova.github.io/vk-oauth-redirect/'; // доверенный Redirect URL
+
+  const $status = document.getElementById('status');
+  const $log = document.getElementById('log');
+  const log = (...a) => { console.log(...a); $log.textContent += a.map(String).join(' ') + '\n'; };
+
+  function init() {
+    const VKID = window.VKIDSDK;
+    if (!VKID) {
+      $status.textContent = 'Не удалось загрузить VKID SDK.';
+      alert('VKID SDK не загрузился');
+      return;
     }
 
-    whenReady(() => {
-      const VKID = window.VKIDSDK.VKID;
-
+    // Инициализация SDK
+    try {
       VKID.Config.init({
-        app: 54164270,  // <-- якщо App ID інший — заміни тут
-        redirectUrl: 'https://920volkova.github.io/vk-oauth-redirect/',
-        responseMode: VKID.ConfigResponseMode.Callback,
-        source: VKID.ConfigSource.LOWCODE
+        app: APP_ID,
+        redirectUrl: REDIRECT_URL,
+        // Вариант 1: вернуть токен во фрагменте (#access_token=...)
+        // Если хочешь получать короткий код (?code=...), замени на VKID.ConfigResponseMode.Callback
+        responseMode: VKID.ConfigResponseMode.Fragment,
+        source: VKID.ConfigSource.LOWCODE,
+        // при необходимости можно добавить scope (например, "email,video")
+        // scope: 'email'
       });
+    } catch (e) {
+      $status.textContent = 'Ошибка инициализации SDK';
+      log('Config.init error:', e);
+      return;
+    }
 
-      const oneTap = new VKID.OneTap();
-      oneTap.render({
-        container: document.getElementById('vkid-container'),
-        showAlternativeLogin: true
-      }).on(VKID.WidgetEvents.ERROR, (err) => {
-        document.getElementById('status').textContent = 'Ошибка виджета: ' + (err && err.message ? err.message : err);
-        console.error(err);
-      }).on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, (payload) => {
-        document.getElementById('status').textContent = 'Логин успешен, перенаправление...';
-        // Далі VK сам перекине на redirectUrl із токеном у фрагменті
-      });
+    // Рисуем кнопку входа
+    const container = document.getElementById('vkid-container');
+    const oneTap = new VKID.OneTap();
+
+    oneTap.render({
+      container,
+      appName: 'myvkapp',           // произвольное имя
+      showAlternativeLogin: true
+    })
+    .on(VKID.WidgetEvents.ERROR, (err) => {
+      log('Widget ERROR:', err);
+      $status.textContent = 'Ошибка виджета: ' + (err && err.message ? err.message : String(err));
+    })
+    .on(VKID.WidgetEvents.SHOW, () => {
+      log('Widget SHOW');
+      $status.textContent = 'Готово. Нажмите «Продолжить»/«Войти с VK ID».';
     });
-  </script>
+
+    log('SDK initialized');
+  }
+
+  // ждём, пока подгрузится SDK с любого CDN
+  function waitForSDK(triesLeft) {
+    if (window.VKIDSDK) return init();
+    if (triesLeft <= 0) {
+      document.getElementById('status').textContent = 'Не удалось загрузить VKID SDK.';
+      alert('VKID SDK не загрузился');
+      return;
+    }
+    setTimeout(() => waitForSDK(triesLeft - 1), 300);
+  }
+  waitForSDK(20);
+})();
+</script>
 </body>
 </html>
