@@ -1,22 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <title>VK OAuth Redirect</title>
 </head>
 <body>
   <h2>VK OAuth Redirect Page</h2>
-  <p id="result">Waiting for token...</p>
+  <p id="result">Ожидание токена...</p>
 
   <script>
-    // Отримуємо access_token з URL
+    // Отримуємо hash з адреси (redirect URL)
     const hash = window.location.hash.substr(1);
     const params = new URLSearchParams(hash);
     const token = params.get("access_token");
+    const error = params.get("error");
 
     if (token) {
       document.getElementById("result").innerText = "Ваш токен: " + token;
       console.log("Access Token:", token);
+    } else if (error) {
+      document.getElementById("result").innerText = "Помилка: " + error;
+      console.error("OAuth Error:", error);
     } else {
       document.getElementById("result").innerText = "Токен не знайдено";
     }
