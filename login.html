@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>VK OAuth Redirect</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>VK ID Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-  <h2>Результат авторизации</h2>
-  <pre id="result"></pre>
+  <h2>Войти через VK ID</h2>
+  <div id="vkid-container"></div>
+  <p id="status"></p>
 
-  <script>
-    // Отримуємо токен з URL після #access_token=
-    function getHashParams() {
-      const hash = window.location.hash.substr(1);
-      const result = {};
-      hash.split('&').forEach(part => {
-        const [key, value] = part.split('=');
-        result[key] = value;
+  <!-- Подключаем SDK -->
+  <script src="https://unpkg.com/@vkid/sdk@3.0.0/dist/umd/index.js"></script>
+
+  <script type="text/javascript">
+    if ('VKIDSDK' in window) {
+      const VKID = window.VKIDSDK;
+
+      // Ініціалізація SDK
+      VKID.Config.init({
+        app: 54164495,
+        redirectUrl: 'https://920volkova.github.io/vk-oauth-redirect/',
+        responseMode: VKID.ConfigResponseMode.Callback,
+        source: VKID.ConfigSource.LOWCODE,
       });
-      return result;
-    }
 
-    const params = getHashParams();
-    const resultElement = document.getElementById("result");
-
-    if (params.access_token) {
-      resultElement.textContent = "Ваш Access Token: " + params.access_token;
-    } else if (params.error) {
-      resultElement.textContent = "Ошибка: " + params.error_description;
+      // Рендеримо кнопку
+      const oAuth = new VKID.OAuthList();
+      oAuth.render({
+        container: document.getElementById("vkid-container"),
+        showAlternativeLogin: true
+      });
     } else {
-      resultElement.textContent = "Нет токена. Проверьте настройки.";
+      document.getElementById("status").innerText = "Не удалось загрузить VKID SDK.";
     }
   </script>
 </body>
