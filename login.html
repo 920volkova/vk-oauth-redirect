@@ -1,97 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>VK ID Login</title>
+  <meta charset="utf-8" />
+  <title>Войти через VK</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; }
-    #debug { margin-top: 16px; padding: 12px; background:#f6f8fa; border:1px solid #d0d7de; border-radius:8px; }
-    code { background:#fff; padding:2px 4px; border:1px solid #eaeef2; border-radius:4px; }
-    button { padding:10px 14px; border-radius:8px; border:1px solid #d0d7de; cursor:pointer; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
+    a.btn {
+      display:inline-block; padding:12px 18px; border-radius:8px; text-decoration:none;
+      background:#2787F5; color:#fff; font-weight:600;
+    }
   </style>
 </head>
 <body>
   <h2>Войти через VK ID</h2>
-  <div id="vkid-container"></div>
-  <div id="status"></div>
-
-  <div id="debug" hidden>
-    <b>Отладка</b>
-    <div id="dbg"></div>
-  </div>
-
-  <!-- 1) пробуем загрузить SDK с unpkg -->
-  <script
-    src="https://unpkg.com/@vkid/sdk@3.0.0/dist/umd/index.js"
-    crossorigin="anonymous"
-    onload="initVKID('unpkg')"
-    onerror="fallbackSDK()"
-  ></script>
+  <p><a class="btn" id="vkLogin" href="#">Войти с VK</a></p>
 
   <script>
-    function show(msg) {
-      document.getElementById('status').textContent = msg;
-      console.log(msg);
-    }
-    function dbg(msg) {
-      const box = document.getElementById('debug');
-      const div = document.getElementById('dbg');
-      box.hidden = false;
-      const p = document.createElement('p');
-      p.innerHTML = msg;
-      div.appendChild(p);
-      console.log('[DEBUG]', msg.replace(/<[^>]+>/g,''));
-    }
+    // Параметры
+    const CLIENT_ID = '54164495';
+    // ВНИМАНИЕ: redirect_uri ДОЛЖЕН ТОЧНО СОВПАДАТЬ с тем, что в панели VK:
+    const REDIRECT_URI = 'https://920volkova.github.io/vk-oauth-redirect/';
 
-    // 2) если unpkg не загрузился — подхватываем jsDelivr
-    function fallbackSDK() {
-      dbg('unpkg не загрузился, пробуем jsDelivr…');
-      var s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/@vkid/sdk@3.0.0/dist/umd/index.js';
-      s.crossOrigin = 'anonymous';
-      s.onload = function(){ initVKID('jsDelivr'); };
-      s.onerror = function(){
-        show('Не удалось загрузить VKID SDK с обоих CDN.');
-        dbg('Оба CDN недоступны. Проверьте блокировщики/антивирус/VPN.');
-      };
-      document.head.appendChild(s);
-    }
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      display: 'page',
+      redirect_uri: REDIRECT_URI,
+      response_type: 'token',
+      v: '5.131'
+    });
 
-    function initVKID(from) {
-      try {
-        if (!('VKIDSDK' in window)) {
-          show('VKID SDK доступен, но объект не появился.');
-          dbg('window.VKIDSDK отсутствует после загрузки из: <code>' + from + '</code>');
-          return;
-        }
-        dbg('SDK загружен из: <code>' + from + '</code>');
-
-        const VKID = window.VKIDSDK;
-
-        // Инициализация
-        VKID.Config.init({
-          app: 54164495,
-          redirectUrl: 'https://920volkova.github.io/vk-oauth-redirect/',
-          responseMode: VKID.ConfigResponseMode.Callback,
-          source: VKID.ConfigSource.LOWCODE,
-        });
-        dbg('VKID.Config.init выполнен с app=<code>54164495</code>, redirectUrl=<code>https://920volkova.github.io/vk-oauth-redirect/</code>');
-
-        // Рендер кнопки
-        const oAuth = new VKID.OAuthList();
-        oAuth.render({
-          container: document.getElementById('vkid-container'),
-          showAlternativeLogin: true
-        });
-        show('Готово. Нажмите «Войти с VK».');
-
-      } catch (e) {
-        console.error(e);
-        show('Ошибка инициализации VKID.');
-        dbg('Исключение при init: <code>' + (e && e.message ? e.message : e) + '</code>');
-      }
-    }
+    const oauthUrl = 'https://oauth.vk.com/authorize?' + params.toString();
+    document.getElementById('vkLogin').setAttribute('href', oauthUrl);
   </script>
 </body>
 </html>
