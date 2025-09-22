@@ -1,37 +1,53 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <title>Войти через VK</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px; }
-    a.btn {
-      display:inline-block; padding:12px 18px; border-radius:8px; text-decoration:none;
-      background:#2787F5; color:#fff; font-weight:600;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Войти через VK ID</title>
 </head>
 <body>
   <h2>Войти через VK ID</h2>
-  <p><a class="btn" id="vkLogin" href="#">Войти с VK</a></p>
+  <a href="https://oauth.vk.com/authorize?client_id=54164495&display=page&redirect_uri=https://920volkova.github.io/vk-oauth-redirect/login.html&scope=email,offline&response_type=token&v=5.131">
+    <button>Войти с VK</button>
+  </a>
+
+  <div id="result"></div>
 
   <script>
-    // Параметры
-    const CLIENT_ID = '54164495';
-    // ВНИМАНИЕ: redirect_uri ДОЛЖЕН ТОЧНО СОВПАДАТЬ с тем, что в панели VK:
-    const REDIRECT_URI = 'https://920volkova.github.io/vk-oauth-redirect/';
+    // Читаем access_token из URL после редиректа
+    const hash = window.location.hash.substr(1);
+    const params = new URLSearchParams(hash);
+    const token = params.get("access_token");
 
-    const params = new URLSearchParams({
-      client_id: CLIENT_ID,
-      display: 'page',
-      redirect_uri: REDIRECT_URI,
-      response_type: 'token',
-      v: '5.131'
-    });
+    if (token) {
+      document.getElementById("result").innerHTML = 
+        "<p><b>Ваш токен:</b></p><textarea rows='5' cols='60'>" + token + "</textarea>";
+    }
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Войти через VK ID</title>
+</head>
+<body>
+  <h2>Войти через VK ID</h2>
+  <a href="https://oauth.vk.com/authorize?client_id=54164495&display=page&redirect_uri=https://920volkova.github.io/vk-oauth-redirect/login.html&scope=email,offline&response_type=token&v=5.131">
+    <button>Войти с VK</button>
+  </a>
 
-    const oauthUrl = 'https://oauth.vk.com/authorize?' + params.toString();
-    document.getElementById('vkLogin').setAttribute('href', oauthUrl);
+  <div id="result"></div>
+
+  <script>
+    // Читаем access_token из URL после редиректа
+    const hash = window.location.hash.substr(1);
+    const params = new URLSearchParams(hash);
+    const token = params.get("access_token");
+
+    if (token) {
+      document.getElementById("result").innerHTML = 
+        "<p><b>Ваш токен:</b></p><textarea rows='5' cols='60'>" + token + "</textarea>";
+    }
   </script>
 </body>
 </html>
