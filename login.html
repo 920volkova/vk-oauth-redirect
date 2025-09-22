@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>VK ID Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h2>Войти через VK ID</h2>
+  <div id="vkid-button"></div>
+
+  <script src="https://unpkg.com/@vkid/sdk@^3/dist-sdk/umd/index.js"></script>
+  <script>
+    (function () {
+      if (!window.VKIDSDK) { alert('VKID SDK не загрузился'); return; }
+      const VKID = window.VKIDSDK;
+
+      VKID.Config.init({
+        app: 54164270, // <-- твій App ID, заміни якщо інший
+        redirectUrl: 'https://920volkova.github.io/vk-oauth-redirect/',
+        responseMode: VKID.ConfigResponseMode.Callback,
+        source: VKID.ConfigSource.LOWCODE
+      });
+
+      const btn = new VKID.OneTap();
+      btn.render({
+        container: document.getElementById('vkid-button'),
+        showAlternativeLogin: true
+      });
+    })();
+  </script>
+</body>
+</html>
