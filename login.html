@@ -4,29 +4,62 @@
   <meta charset="UTF-8" />
   <title>VK ID Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: sans-serif; padding: 24px; }
+    #vkid-button { margin-top: 16px; }
+    #status { color: #888; }
+  </style>
 </head>
 <body>
   <h2>Войти через VK ID</h2>
+  <p id="status">Загрузка SDK…</p>
   <div id="vkid-button"></div>
 
-  <script src="https://unpkg.com/@vkid/sdk@^3/dist-sdk/umd/index.js"></script>
   <script>
-    (function () {
-      if (!window.VKIDSDK) { alert('VKID SDK не загрузился'); return; }
-      const VKID = window.VKIDSDK;
-
-      VKID.Config.init({
-        app: 54164270, // <-- твій App ID, заміни якщо інший
-        redirectUrl: 'https://920volkova.github.io/vk-oauth-redirect/',
-        responseMode: VKID.ConfigResponseMode.Callback,
-        source: VKID.ConfigSource.LOWCODE
+    // Підвантажуємо SDK з 2 CDN: unpkg → jsDelivr (як запасний)
+    function loadScript(src) {
+      return new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
       });
+    }
 
-      const btn = new VKID.OneTap();
-      btn.render({
-        container: document.getElementById('vkid-button'),
-        showAlternativeLogin: true
-      });
+    (async function init() {
+      const status = document.getElementById('status');
+      try {
+        // 1-я спроба (unpkg)
+        try {
+          await loadScript('https://unpkg.com/@vkid/sdk@3.0.0/dist-sdk/umd/index.js');
+        } catch (e) {
+          // 2-я спроба (jsDelivr)
+          await loadScript('https://cdn.jsdelivr.net/npm/@vkid/sdk@3.0.0/dist-sdk/umd/index.js');
+        }
+
+        if (!window.VKIDSDK) throw new Error('SDK object not found');
+
+        const VKID = window.VKIDSDK;
+
+        VKID.Config.init({
+          app: 54164270, // <-- твій App ID
+          redirectUrl: 'https://920volkova.github.io/vk-oauth-redirect/',
+          responseMode: VKID.ConfigResponseMode.Callback,
+          source: VKID.ConfigSource.LOWCODE
+        });
+
+        const btn = new VKID.OneTap();
+        btn.render({
+          container: document.getElementById('vkid-button'),
+          showAlternativeLogin: true
+        });
+
+        status.textContent = 'SDK загружен. Нажмите кнопку выше.';
+      } catch (err) {
+        status.textContent = 'Не удалось загрузить VK ID SDK: ' + err.message;
+      }
     })();
   </script>
 </body>
