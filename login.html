@@ -1,36 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <title>VK ID Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, Arial, sans-serif; padding: 24px; }
-    .btn { display:inline-block; padding:12px 18px; border-radius:8px; text-decoration:none; }
-    .vk { background:#07f; color:#fff; }
-    #status { margin-top:16px; color:#444; }
-  </style>
+  <meta charset="UTF-8">
+  <title>VK OAuth Redirect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <h2>Войти через VK ID</h2>
-
-  <a class="btn vk"
-     href="https://oauth.vk.com/authorize?client_id=54164270&display=page&redirect_uri=https://920volkova.github.io/vk-oauth-redirect/&scope=friends,email,offline&response_type=token&v=5.131">
-     Войти с VK ID
-  </a>
-
-  <p id="status"></p>
+  <h2>Результат авторизации</h2>
+  <pre id="result"></pre>
 
   <script>
-    // Якщо відкрили login.html з хешем (раптом авторизація вже відбулась) — покажемо токен
-    const hash = window.location.hash.slice(1);
-    if (hash) {
-      const p = new URLSearchParams(hash);
-      const token = p.get('access_token');
-      const error = p.get('error');
-      const st = document.getElementById('status');
-      if (token) st.textContent = 'Ваш токен: ' + token;
-      else if (error) st.textContent = 'Ошибка: ' + error;
+    // Отримуємо токен з URL після #access_token=
+    function getHashParams() {
+      const hash = window.location.hash.substr(1);
+      const result = {};
+      hash.split('&').forEach(part => {
+        const [key, value] = part.split('=');
+        result[key] = value;
+      });
+      return result;
+    }
+
+    const params = getHashParams();
+    const resultElement = document.getElementById("result");
+
+    if (params.access_token) {
+      resultElement.textContent = "Ваш Access Token: " + params.access_token;
+    } else if (params.error) {
+      resultElement.textContent = "Ошибка: " + params.error_description;
+    } else {
+      resultElement.textContent = "Нет токена. Проверьте настройки.";
     }
   </script>
 </body>
