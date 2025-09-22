@@ -1,14 +1,29 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>VK ID Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>VK OAuth Redirect</title>
 </head>
 <body>
-  <h2>Войти через VK ID</h2>
-  <a href="https://oauth.vk.com/authorize?client_id=541646495&display=page&redirect_uri=https://920volkova.github.io/vk-oauth-redirect/&scope=friends,email&response_type=token&v=5.131">
-    <button>Войти с VK</button>
-  </a>
+  <h2>VK OAuth Redirect Page</h2>
+  <p id="result">Ожидание токена...</p>
+
+  <script>
+    // Получаем hash из URL (redirect)
+    const hash = window.location.hash.substr(1);
+    const params = new URLSearchParams(hash);
+    const token = params.get("access_token");
+    const error = params.get("error");
+
+    if (token) {
+      document.getElementById("result").innerText = "Ваш токен: " + token;
+      console.log("Access Token:", token);
+    } else if (error) {
+      document.getElementById("result").innerText = "Ошибка: " + error;
+      console.error("OAuth Error:", error);
+    } else {
+      document.getElementById("result").innerText = "Токен не найден.";
+    }
+  </script>
 </body>
 </html>
