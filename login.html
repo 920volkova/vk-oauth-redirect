@@ -1,52 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
   <title>VK ID Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Arial, sans-serif; padding: 24px; }
+    .btn { display:inline-block; padding:12px 18px; border-radius:8px; text-decoration:none; }
+    .vk { background:#07f; color:#fff; }
+    #status { margin-top:16px; color:#444; }
+  </style>
 </head>
 <body>
   <h2>Войти через VK ID</h2>
-  <div id="vkid-container"></div>
+
+  <a class="btn vk"
+     href="https://oauth.vk.com/authorize?client_id=54164270&display=page&redirect_uri=https://920volkova.github.io/vk-oauth-redirect/&scope=friends,email,offline&response_type=token&v=5.131">
+     Войти с VK ID
+  </a>
+
   <p id="status"></p>
 
-  <!-- Підключаємо SDK з двох різних CDN -->
-  <script src="https://unpkg.com/@vkid/sdk@3.0.0/dist/umd/index.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@vkid/sdk@3.0.0/dist/umd/index.js"></script>
-
   <script>
-    function initVKID() {
-      if (!window.VKID) {
-        document.getElementById("status").innerText = "Не удалось загрузить VKID SDK.";
-        console.error("VKID SDK не подгрузился");
-        return;
-      }
-
-      const VKID = window.VKID;
-
-      VKID.Config.init({
-        app: 54164270, // твій ID додатку
-        redirectUrl: "https://920volkova.github.io/vk-oauth-redirect/",
-        responseMode: VKID.ConfigResponseMode.Callback,
-        source: VKID.ConfigSource.LOWCODE,
-      });
-
-      // рендеримо кнопку
-      VKID.Auth.render(
-        document.getElementById("vkid-container"),
-        {
-          lang: "ru",
-          theme: VKID.ConfigTheme.LIGHT,
-          buttonStyle: VKID.ConfigButtonStyle.PRIMARY,
-        }
-      );
-
-      document.getElementById("status").innerText = "VKID SDK загружен ✅";
-      console.log("VKID SDK готов к работе");
+    // Якщо відкрили login.html з хешем (раптом авторизація вже відбулась) — покажемо токен
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const p = new URLSearchParams(hash);
+      const token = p.get('access_token');
+      const error = p.get('error');
+      const st = document.getElementById('status');
+      if (token) st.textContent = 'Ваш токен: ' + token;
+      else if (error) st.textContent = 'Ошибка: ' + error;
     }
-
-    // чекаємо поки все завантажиться
-    window.onload = initVKID;
   </script>
 </body>
 </html>
