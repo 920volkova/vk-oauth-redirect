@@ -2,123 +2,92 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<title>Создание прокси страницы</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Нейросеть</title>
 
 <style>
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(180deg,#0f172a,#1e293b);
-  color: white;
-}
-
-.container {
-  max-width: 420px;
-  margin: 40px auto;
-  padding: 15px;
-}
-
-.card {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(15px);
-  border-radius: 25px;
-  padding: 25px;
-  text-align: center;
-  box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-}
-
-.avatar {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  margin: 0 auto 15px;
-  border: 3px solid #00eaff;
-  background: url('ai.jpg') center/cover;
-}
-
-h1 {
-  font-size: 26px;
-  margin: 10px 0 20px;
-}
-
-.step-title {
-  color: #60a5fa;
-  font-weight: 600;
-  margin-top: 20px;
+  font-family: Arial;
+  background: #f3f4f6;
+  padding: 30px;
 }
 
 .box {
-  background: rgba(255,255,255,0.08);
-  border-radius: 15px;
+  background: white;
   padding: 20px;
-  margin-top: 10px;
+  border-radius: 12px;
+  max-width: 500px;
+  margin: auto;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-.btn {
-  display: block;
-  text-decoration: none;
-  padding: 16px;
-  border-radius: 14px;
-  font-weight: 600;
-  margin-top: 15px;
-  transition: all 0.2s ease;
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-}
-
-.green {
-  background: linear-gradient(90deg,#00c853,#00e676);
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #0ea5e9;
   color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.blue {
-  background: linear-gradient(90deg,#3b82f6,#2563eb);
-  color: white;
-}
-
-.small {
-  font-size: 12px;
-  color: #ccc;
-  margin-top: 10px;
+.result {
+  margin-top: 20px;
+  word-break: break-all;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <div class="card">
+<div class="box">
+  <h2>⚙️ Создать прокси-страницу</h2>
 
-    <div class="avatar"></div>
+  <input id="proxy" placeholder="tg://proxy?...">
+  <input id="channel" placeholder="https://t.me/username">
 
-    <h1>Нейросеть</h1>
+  <button onclick="generate()">Создать страницу</button>
 
-    <div class="step-title">Шаг 1</div>
-    <div class="box">
-      <p>Подключите прокси</p>
-
-      <!-- ТВОЙ ПРОКСИ -->
-      <a class="btn green" href="https://t.me/proxy?server=80.253.251.46&port=8443&secret=ddc14ef7d7aaf8e9f2afbf634e198a9a">
-        Ускорить Telegram 🚀
-      </a>
-
-      <div class="small">1 клик • Бесплатно • Безопасно</div>
-    </div>
-
-    <div class="step-title">Шаг 2</div>
-
-    <!-- ТВОЙ БОТ -->
-    <a class="btn blue" href="https://t.me/ImageGeneratorGPTFaceBot">
-      Открыть в Telegram →
-    </a>
-
-  </div>
+  <div class="result" id="result"></div>
 </div>
+
+<script>
+function generate() {
+  let proxy = document.getElementById('proxy').value;
+  let channel = document.getElementById('channel').value;
+
+  let page = `
+  <html>
+  <body style="text-align:center;font-family:sans-serif;padding:50px;">
+    <h2>Подключение...</h2>
+    <a href="${proxy}">Подключить прокси</a><br><br>
+    <a href="${channel}">Перейти в канал</a>
+
+    <script>
+      setTimeout(()=>{
+        window.location.href="${proxy}"
+      },1000)
+    <\/script>
+  </body>
+  </html>
+  `;
+
+  let blob = new Blob([page], { type: 'text/html' });
+  let url = URL.createObjectURL(blob);
+
+  document.getElementById('result').innerHTML =
+    "👉 Ссылка: <a href='" + url + "' target='_blank'>" + url + "</a>";
+}
+</script>
 
 </body>
 </html>
-ai.jpg
