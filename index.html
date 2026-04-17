@@ -140,4 +140,146 @@ setTimeout(() => {
 </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Подключение Telegram</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 420px;
+  width: 100%;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.desc {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.warning {
+  border: 2px solid #f87171;
+  color: #b91c1c;
+  text-align: center;
+  font-weight: bold;
+}
+
+.step {
+  text-align: center;
+}
+
+.step h3 {
+  color: #0284c7;
+  margin-bottom: 5px;
+}
+
+.btn {
+  display: block;
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: bold;
+  text-align: center;
+}
+
+.green {
+  background: #22c55e;
+  color: white;
+}
+
+.blue {
+  background: #0ea5e9;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="card header">
+    <img src="https://via.placeholder.com/50">
+    <div>
+      <div class="title">Название канала</div>
+      <div class="desc">Описание канала</div>
+    </div>
+  </div>
+
+  <!-- WARNING -->
+  <div class="card warning">
+    ❗ TELEGRAM СЕЙЧАС ЗАМЕДЛЯЮТ ❗<br><br>
+    Без прокси/VPN бот НЕ откроется.
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card step">
+    <h3>ШАГ 1</h3>
+    <b>Подключите прокси</b>
+    <p>Ускорьте Telegram за 1 секунду</p>
+
+    <a class="btn green"
+       href="tg://proxy?server=YOUR_SERVER&port=443&secret=YOUR_SECRET">
+       🚀 Ускорить Telegram
+    </a>
+
+    <small>1 клик • Бесплатно • Безопасно</small>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card step">
+    <h3>ШАГ 2</h3>
+
+    <a class="btn blue"
+       href="https://t.me/YOUR_CHANNEL">
+       Открыть в Telegram →
+    </a>
+  </div>
+
+</div>
+
+<script>
+// авто запуск прокси
+setTimeout(() => {
+  window.location.href = "tg://proxy?server=YOUR_SERVER&port=443&secret=YOUR_SECRET";
+}, 1500);
+</script>
+
+</body>
 </html>
